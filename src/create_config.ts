@@ -1,22 +1,22 @@
-import {addSnakeCaseShadowProps} from './helpers.js';
+import {addSnakeCaseShadowProps} from './helpers';
 
 export const consoleLogger = Object.freeze({
-  warn (...args) {
+  warn (...args: any[]) {
     // eslint-disable-next-line no-console
     console.warn('[warning]', ...args);
   },
 
-  info (...args) {
+  info (...args: any[]) {
     // eslint-disable-next-line no-console
     console.info('[info]', ...args);
   },
 
-  debug (...args) {
+  debug (...args: any[]) {
     // eslint-disable-next-line no-console
     console.debug('[debug]', ...args);
   },
 
-  trace (...args) {
+  trace (...args: any[]) {
     // eslint-disable-next-line no-console
     console.trace('[trace]', ...args);
   }

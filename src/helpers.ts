@@ -2,6 +2,7 @@ import util from 'util';
 import {find, includes, isEmpty, keyBy, omit, partial, property, remove, snakeCase} from 'lodash';
 import {MODERATOR_PERMISSIONS, LIVETHREAD_PERMISSIONS} from './constants.js';
 import {emptyChildren as emptyMoreObject} from './objects/More.js';
+import { Listing, PrivateMessage, RedditContent, Submission } from './snoowrap.js';
 
 /**
 * @summary Returns an unfetched empty replies Listing for an item.
@@ -9,19 +10,19 @@ import {emptyChildren as emptyMoreObject} from './objects/More.js';
 * @returns {Listing} The empty replies Listing
 * @api private
 */
-export function getEmptyRepliesListing (item) {
-  if (item.constructor._name === 'Comment') {
+export function getEmptyRepliesListing< T extends Comment | Submission | PrivateMessage> (item : T) : Listing<T>{
+  if (item.constructor.name === 'Comment') {
     return item._r._newObject('Listing', {
-      _uri: `comments/${(item.link_id || item.parent_id).slice(3)}`,
+      _uri: `comments/${( (<Comment>item).link_id || (<Comment>item).parent_id).slice(3)}`,
       _query: {comment: item.name.slice(3), sort: item._sort},
       _transform: property('comments[0].replies'),
       _link_id: item.link_id,
       _isCommentList: true
     });
   }
-  if (item.constructor._name === 'Submission') {
+  if (item.constructor.name === 'Submission') {
     return item._r._newObject('Listing', {
-      _uri: `comments/${item.id}`,
+      _uri: `comments/${(<Submission>item).id}`,
       _transform: property('comments'),
       _isCommentList: true
     });
@@ -35,12 +36,12 @@ export function getEmptyRepliesListing (item) {
 * @returns {Comment|PrivateMessage} The item with the new replies Listing
 * @api private
 */
-export function addEmptyRepliesListing (item) {
+export function addEmptyRepliesListing<T extends Comment | PrivateMessage > (item : T) : T{
   item.replies = getEmptyRepliesListing(item);
   return item;
 }
 
-export function handleJsonErrors (response) {
+export function handleJsonErrors (response : any) : void {
   if (!isEmpty(response) && !isEmpty(response.json.errors)) {
     throw new Error(response.json.errors[0]);
   }
@@ -53,7 +54,7 @@ export function handleJsonErrors (response) {
 * @returns {PrivateMessage} The PrivateMessage with the given fullname, or undefined if it was not found in the tree.
 * @api private
 */
-export function findMessageInTree (desiredName, rootNode) {
+export function findMessageInTree (desiredName : string, rootNode: PrivateMessage) : PrivateMessage {
   return rootNode.name === desiredName ? rootNode : find(rootNode.replies.map(partial(findMessageInTree, desiredName)));
 }
 
@@ -64,7 +65,7 @@ export function findMessageInTree (desiredName, rootNode) {
 * @returns {String} The permissions formatted into a '+'/'-' string
 * @api private
 */
-export function formatPermissions (allPermissionNames, permsArray) {
+export function formatPermissions (allPermissionNames : string[], permsArray: string[]) : string {
   return permsArray ? allPermissionNames.map(type => (includes(permsArray, type) ? '+' : '-') + type).join(',') : '+all';
 }
 
@@ -79,7 +80,7 @@ export const formatLivethreadPermissions = partial(formatPermissions, LIVETHREAD
 * @returns {Object} A version of the object with the key renamed
 * @api private
 */
-export function renameKey (obj, oldKey, newKey) {
+export function renameKey (obj: object, oldKey : keyof any, newKey : keyof any) {
   return obj && omit({...obj, [newKey]: obj[oldKey]}, oldKey);
 }
 
@@ -114,7 +115,7 @@ the item's fullname.
 * @returns {String}
 * @api private
 */
-export function addFullnamePrefix (item, prefix) {
+export function addFullnamePrefix<T = any> (item : string | RedditContent<T>, prefix : string) : string {
   if (typeof item === 'string') {
     return hasFullnamePrefix(item) ? item : prefix + item;
   }
@@ -127,7 +128,7 @@ export function addFullnamePrefix (item, prefix) {
 * @returns {boolean}
 * @api private
 */
-export function hasFullnamePrefix (item) {
+export function hasFullnamePrefix (item : string) : boolean{
   return /^(t\d|LiveUpdateEvent)_/.test(item);
 }
 
@@ -141,7 +142,7 @@ of the property.
 * @returns The updated version of `obj`
 * @api private
 */
-export function addSnakeCaseShadowProps (obj) {
+export function addSnakeCaseShadowProps (obj : object) {
   Object.keys(obj).filter(key => !key.startsWith('_') && key !== snakeCase(key)).forEach(key => {
     Object.defineProperty(obj, snakeCase(key), {get: () => obj[key], set: value => {
       obj[key] = value;
@@ -152,7 +153,7 @@ export function addSnakeCaseShadowProps (obj) {
 
 export const isBrowser = typeof self === 'object';
 
-export function defineInspectFunc (obj, inspectFunc) {
+export function defineInspectFunc (obj : object, inspectFunc) {
   if (isBrowser) {
     return;
   }
@@ -161,6 +162,6 @@ export function defineInspectFunc (obj, inspectFunc) {
   Object.defineProperty(obj, inspectKey, {writable: true, enumerable: false, value: inspectFunc});
 }
 
-export function requiredArg (argName) {
+export function requiredArg (argName : string) {
   throw new TypeError(`Missing required argument ${argName}`);
 }

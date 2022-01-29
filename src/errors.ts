@@ -30,6 +30,6 @@ export class RequestError extends Error {}
 export class StatusCodeError extends Error {}
 export class WebSocketError extends Error {}
 
-export function rateLimitWarning (millisecondsUntilReset) {
+export function rateLimitWarning (millisecondsUntilReset : number) {
   return `Warning: ${MODULE_NAME} temporarily stopped sending requests because reddit's ratelimit was exceeded. The request you attempted to send was queued, and will be sent to reddit when the current ratelimit period expires in ${millisecondsUntilReset / 1000} seconds.`;
 }
