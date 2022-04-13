@@ -1,10 +1,11 @@
 import {
 	BaseSearchOptions,
 	ModAction,
-	Sort,
 	SubmitLinkOptions,
 	SubmitSelfPostOptions,
 } from "../snoowrap";
+
+import {snoowrap_sortOptions as Sort} from "../snoowrap/snoowrap"
 import Comment from "./Comment";
 import Listing, { ListingOptions } from "./Listing";
 import PrivateMessage from "./PrivateMessage";
@@ -16,6 +17,7 @@ import WikiPage, { WikiPageRevision } from "./WikiPage";
 import ModmailConversation from "./ModmailConversation";
 import { api_type } from "../utility/constants";
 import { handleJsonErrors } from "../utility/helpers";
+import { chunk, flatten, map } from "lodash";
 
 export default interface Subreddit extends RedditContent<Subreddit> {
 	accounts_active_is_fuzzed: boolean;
@@ -220,7 +222,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
-	public async deleteFlairTemplate(options: {
+	public async deleteFlairTemplate({flair_template_id}: {
 		flair_template_id: string;
 	}): Promise<this> {
 		await this._post({
@@ -245,7 +247,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
-	public async deleteImage(options: { imageName: string }): Promise<this> {
+	public async deleteImage({imageName}: { imageName: string }): Promise<this> {
 		const res = await this._post({
 			url: `r/${this.display_name}/api/delete_sr_img`,
 			form: { api_type, img_name: imageName },
@@ -325,7 +327,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 	}
 	public async getModerators(
 		options?: ListingOptions & { name?: string }
-	): RedditUser[] {
+	): Promise<RedditUser[]> {
 		return this._get({
 			url: `r/${this.display_name}/about/moderators`,
 			params: { user: name },
@@ -417,7 +419,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 	}
 
-	public async getSticky(options?: { num?: number }): Promise<Submission> {
+	public async getSticky({num}: { num?: number }): Promise<Submission> {
 		return this._get({
 			url: `r/${this.display_name}/about/sticky`,
 			params: { num },
@@ -470,7 +472,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 				response.after = response.next || null;
 				response.before = response.prev || null;
 				response.children = response.users;
-				return this._r._newObject("Listing", response);
+				return this._r.newObject("Listing", response);
 			},
 		});
 	}
@@ -494,8 +496,8 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
-	public async getWikiPage(name: string): WikiPage {
-		return this._r._newObject("WikiPage", { subreddit: this, title });
+	public async getWikiPage(title: string): Promise<WikiPage> {
+		return this._r.newObject("WikiPage", { subreddit: this, title });
 	}
 	public async getWikiPages(): Promise<WikiPage[]> {
 		const res = await this._get({
