@@ -1,7 +1,8 @@
-import { mapValues, pick } from 'lodash';
+import { cloneDeep, mapValues, pick } from 'lodash';
 import {snoowrapFactoryConstructible} from '../snoowrap/factory'
 import snoowrap from '../snoowrap/snoowrap'
 import { SUBREDDIT_KEYS, USER_KEYS } from '../utility/constants';
+import Listing from './Listing';
 
 export default interface RedditContent<T extends RedditContent<T>>{
     created_utc: number;

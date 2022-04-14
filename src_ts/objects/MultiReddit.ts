@@ -26,7 +26,7 @@ export default class MultiReddit extends RedditContent<MultiReddit> {
 			this.subreddits = this.subreddits.map((item) =>
 				this._r.newObject(
 					"Subreddit",
-					item.data || { display_name: item.name }
+					(<any>item).data || { display_name: item.name }
 				)
 			);
 		}

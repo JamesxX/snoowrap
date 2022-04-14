@@ -1,5 +1,6 @@
 import { snoowrapFactoryConstructible } from '../snoowrap/factory';
 import Listing from './Listing';
+import Submission from './Submission';
 import VoteableContent from './VoteableContent';
 
 export default interface Comment extends VoteableContent<Comment> {

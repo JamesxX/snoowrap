@@ -86,7 +86,7 @@ export default class snoowrap extends factory {
 		return this._ownUserInfo;
 	}
 
-	async #getMyName(): Promise<string> {
+	public async _getMyName(): Promise<string> {
 		return this._ownUserInfo
 			? Promise.resolve<string>(this._ownUserInfo.name)
 			: (await this.getMe()).name;

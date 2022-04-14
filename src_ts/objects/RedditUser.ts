@@ -141,7 +141,7 @@ export default class RedditUser extends RedditContent<RedditUser> {
     return this._getListing({uri: `user/${this.name}/hidden`, qs: options});
   }
 
-  public async getMultireddit(name: string): MultiReddit{
+  public async getMultireddit(name: string): Promise<MultiReddit>{
     return this._r.newObject('MultiReddit', {name, curator: this});
   }
 

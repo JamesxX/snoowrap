@@ -240,7 +240,7 @@ export default class Submission extends VoteableContent<Submission> {
 			qs: options,
 		});
 		if (result.constructor._name === "Submission") {
-			this._r._warn(
+			this._r.warn(
 				"Submission#getRelated has been deprecated upstream, and will not work as expected."
 			);
 		}
