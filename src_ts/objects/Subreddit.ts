@@ -5,7 +5,7 @@ import {
 	SubmitSelfPostOptions,
 } from "../snoowrap";
 
-import {snoowrap_sortOptions as Sort} from "../snoowrap/snoowrap"
+import { snoowrap_sortOptions as Sort } from "../snoowrap/snoowrap";
 import Comment from "./Comment";
 import Listing, { ListingOptions } from "./Listing";
 import PrivateMessage from "./PrivateMessage";
@@ -105,11 +105,12 @@ export default interface Subreddit extends RedditContent<Subreddit> {
 }
 
 export default class Subreddit extends RedditContent<Subreddit> {
+
 	get _uri() {
 		return `r/${this.display_name}/about`;
 	}
 
-	_transformApiResponse(response) {
+	_transformApiResponse(response: any) {
 		if (!(response instanceof Subreddit)) {
 			throw new TypeError(
 				`The subreddit /r/${this.display_name} does not exist.`
@@ -133,6 +134,13 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		flair_type,
 		text_editable = false,
 		textEditable = text_editable,
+	} : {
+		text: string,
+		css_class: string,
+		cssClass: string,
+		flair_type: string,
+		text_editable: boolean,
+		textEditable: boolean
 	}) {
 		await this._post({
 			url: `r/${this.display_name}/api/flairtemplate`,
@@ -167,9 +175,11 @@ export default class Subreddit extends RedditContent<Subreddit> {
 	public async addContributor(options: { name: string }): Promise<this> {
 		return this._friend({ name, type: "contributor" });
 	}
+
 	public async addWikiContributor(options: { name: string }): Promise<this> {
 		return this._friend({ name, type: "wikicontributor" });
 	}
+
 	public async banUser(options: BanOptions): Promise<this> {
 		return this._friend({
 			name,
@@ -180,6 +190,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			type: "banned",
 		});
 	}
+
 	public async configureFlair(options: FlairConfig): Promise<this> {
 		await this._post({
 			url: `r/${this.display_name}/api/flairconfig`,
@@ -189,23 +200,27 @@ export default class Subreddit extends RedditContent<Subreddit> {
 				flair_position: options.userFlairPosition,
 				flair_self_assign_enabled: options.userFlairSelfAssignEnabled,
 				link_flair_position: options.linkFlairPosition,
-				link_flair_self_assign_enabled: options.linkFlairSelfAssignEnabled,
+				link_flair_self_assign_enabled:
+					options.linkFlairSelfAssignEnabled,
 			},
 		});
 		return this;
 	}
+
 	public async createLinkFlairTemplate(options: FlairParams): Promise<this> {
 		return this._createFlairTemplate({
 			...options,
 			flair_type: "LINK_FLAIR",
 		});
 	}
+
 	public async createUserFlairTemplate(options: FlairParams): Promise<this> {
 		return this._createFlairTemplate({
 			...options,
 			flair_type: "USER_FLAIR",
 		});
 	}
+
 	public async deleteAllLinkFlairTemplates(): Promise<this> {
 		return this._deleteFlairTemplates({ flair_type: "LINK_FLAIR" });
 	}
@@ -222,7 +237,10 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
-	public async deleteFlairTemplate({flair_template_id}: {
+
+	public async deleteFlairTemplate({
+		flair_template_id,
+	}: {
 		flair_template_id: string;
 	}): Promise<this> {
 		await this._post({
@@ -231,6 +249,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 		return this;
 	}
+
 	public async deleteHeader(): Promise<this> {
 		const res = await this._post({
 			url: `r/${this.display_name}/api/delete_sr_header`,
@@ -239,6 +258,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	public async deleteIcon(): Promise<this> {
 		const res = await this._post({
 			url: `r/${this.display_name}/api/delete_sr_icon`,
@@ -247,7 +267,12 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
-	public async deleteImage({imageName}: { imageName: string }): Promise<this> {
+
+	public async deleteImage({
+		imageName,
+	}: {
+		imageName: string;
+	}): Promise<this> {
 		const res = await this._post({
 			url: `r/${this.display_name}/api/delete_sr_img`,
 			form: { api_type, img_name: imageName },
@@ -255,6 +280,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	public async deleteUserFlair(name: string): Promise<this> {
 		await this._post({
 			url: `r/${this.display_name}/api/deleteflair`,
@@ -262,6 +288,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 		return this;
 	}
+
 	public async editSettings(options: SubredditSettings): Promise<this> {
 		const currentValues = await this.getSettings();
 		const name = (await this.fetch()).name;
@@ -272,6 +299,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 		return this;
 	}
+
 	public async getBannedUsers(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<BannedUser>> {
@@ -280,6 +308,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
+
 	public async getContributors(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<Contributor>> {
@@ -288,11 +317,13 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
+
 	public async getControversial(
 		options?: ListingOptions & { time?: string }
 	): Promise<Listing<Submission>> {
 		return this._r.getControversial(this.display_name, options);
 	}
+
 	public async getEdited(
 		options?: ListingOptions & { only?: "links" | "comments" }
 	): Promise<Listing<Submission | Comment>> {
@@ -301,11 +332,13 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async getHot(
 		options?: ListingOptions
 	): Promise<Listing<Submission>> {
 		return this._r.getHot(this.display_name, options);
 	}
+
 	public async getLinkFlairTemplates(
 		linkId?: string
 	): Promise<FlairTemplate[]> {
@@ -313,6 +346,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		const res = await this._getFlairOptions(options);
 		return res.choices;
 	}
+
 	public async getModerationLog(
 		opts?: ListingOptions & { mods?: string[]; type?: ModActionType }
 	): Promise<Listing<ModAction>> {
@@ -325,6 +359,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: parsedOptions,
 		});
 	}
+
 	public async getModerators(
 		options?: ListingOptions & { name?: string }
 	): Promise<RedditUser[]> {
@@ -333,6 +368,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			params: { user: name },
 		});
 	}
+
 	public async getModmail(
 		options?: ListingOptions
 	): Promise<Listing<PrivateMessage>> {
@@ -341,6 +377,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async getNewModmailConversations(
 		options?: ListingOptions
 	): Promise<Listing<ModmailConversation>> {
@@ -349,6 +386,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			entity: this.display_name,
 		});
 	}
+
 	public async getModqueue(
 		options?: ListingOptions & { only?: "links" | "comments" }
 	): Promise<Listing<Submission | Comment>> {
@@ -357,6 +395,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async getMutedUsers(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<MutedUser>> {
@@ -365,22 +404,27 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
+
 	public async getMyFlair(): Promise<FlairTemplate> {
 		return (await this._getFlairOptions()).current;
 	}
+
 	public async getNew(
 		options?: ListingOptions
 	): Promise<Listing<Submission>> {
 		return this._r.getNew(this.display_name, options);
 	}
+
 	public async getNewComments(
 		options?: ListingOptions
 	): Promise<Listing<Comment>> {
 		return this._r.getNewComments(this.display_name, options);
 	}
+
 	public async getRandomSubmission(): Promise<Submission> {
 		return this._r.getRandomSubmission(this.display_name);
 	}
+
 	public async getRecommendedSubreddits(options?: {
 		omit?: string[];
 	}): Promise<Subreddit[]> {
@@ -391,6 +435,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 		return map(names, "sr_name");
 	}
+
 	public async getReports(
 		options?: ListingOptions & { only?: "links" | "comments" }
 	): Promise<Listing<Submission | Comment>> {
@@ -399,17 +444,21 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async getRising(
 		options?: ListingOptions
 	): Promise<Listing<Submission>> {
 		return this._r.getRising(this.display_name, options);
 	}
+
 	public async getRules(): Promise<{ rules: Rule[]; site_rules: string[] }> {
 		return this._get({ url: `r/${this.display_name}/about/rules` });
 	}
+
 	public async getSettings(): Promise<SubredditSettings> {
 		return this._get({ url: `r/${this.display_name}/about/edit` });
 	}
+
 	public async getSpam(
 		options?: ListingOptions & { only?: "links" | "comments" }
 	): Promise<Listing<Submission | Comment>> {
@@ -419,29 +468,33 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 	}
 
-	public async getSticky({num}: { num?: number }): Promise<Submission> {
+	public async getSticky({ num }: { num?: number }): Promise<Submission> {
 		return this._get({
 			url: `r/${this.display_name}/about/sticky`,
 			params: { num },
 		});
 	}
+
 	public async getStylesheet(): Promise<string> {
 		return this._get({
 			url: `r/${this.display_name}/stylesheet`,
 			json: false,
 		});
 	}
+
 	public async getSubmitText(): Promise<string> {
 		const res = await this._get({
 			url: `r/${this.display_name}/api/submit_text`,
 		});
 		return res.submit_text;
 	}
+
 	public async getTop(
 		options?: ListingOptions & { time?: Timespan }
 	): Promise<Listing<Submission>> {
 		return this._r.getTop(this.display_name, options);
 	}
+
 	public async getUnmoderated(
 		options?: ListingOptions & { only?: "links" | "comments" }
 	): Promise<Listing<Submission | Comment>> {
@@ -450,10 +503,12 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async getUserFlair(name: string): Promise<FlairTemplate> {
 		const res = await this._getFlairOptions({ name });
 		return res.current;
 	}
+
 	public async getUserFlairList(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<UserFlair>> {
@@ -476,10 +531,12 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			},
 		});
 	}
+
 	public async getUserFlairTemplates(): Promise<FlairTemplate[]> {
 		const res = await this._getFlairOptions();
 		return res.choices;
 	}
+
 	public async getWikiBannedUsers(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<BannedUser>> {
@@ -488,6 +545,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
+
 	public async getWikiContributors(
 		options?: ListingOptions & { name?: string }
 	): Promise<Listing<Contributor>> {
@@ -496,15 +554,18 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: renameKey(options, "name", "user"),
 		});
 	}
+
 	public async getWikiPage(title: string): Promise<WikiPage> {
 		return this._r.newObject("WikiPage", { subreddit: this, title });
 	}
+
 	public async getWikiPages(): Promise<WikiPage[]> {
 		const res = await this._get({
 			url: `r/${this.display_name}/wiki/pages`,
 		});
 		return res.map((title) => this.getWikiPage(title));
 	}
+
 	public async getWikiRevisions(
 		options?: ListingOptions
 	): Promise<Listing<WikiPageRevision>> {
@@ -513,9 +574,11 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			qs: options,
 		});
 	}
+
 	public async hideMyFlair(): Promise<this> {
 		return this._setMyFlairVisibility(false);
 	}
+
 	public async inviteModerator(options: {
 		name: string;
 		permissions?: ModeratorPermission[];
@@ -536,6 +599,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	public async leaveModerator(): Promise<this> {
 		const name = (await this.fetch()).name;
 		const res = await this._post({
@@ -545,25 +609,31 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	public async muteUser(options: { name: string }): Promise<this> {
 		return this._friend({ name, type: "muted" });
 	}
+
 	public async removeContributor(options: { name: string }): Promise<this> {
 		return this._unfriend({ name, type: "contributor" });
 	}
+
 	public async removeModerator(options: { name: string }): Promise<this> {
 		return this._unfriend({ name, type: "moderator" });
 	}
+
 	public async removeWikiContributor(options: {
 		name: string;
 	}): Promise<this> {
 		return this._unfriend({ name, type: "wikicontributor" });
 	}
+
 	public async revokeModeratorInvite(options: {
 		name: string;
 	}): Promise<this> {
 		return this._unfriend({ name, type: "moderator_invite" });
 	}
+
 	public async search(
 		options: BaseSearchOptions
 	): Promise<Listing<Submission>> {
@@ -573,6 +643,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			restrictSr: true,
 		});
 	}
+
 	public async selectMyFlair(options: {
 		flair_template_id: string;
 		text?: string;
@@ -590,7 +661,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		return this;
 	}
 
-	async _setMyFlairVisibility(flair_enabled) {
+	async _setMyFlairVisibility(flair_enabled: boolean) {
 		await this._post({
 			url: `r/${this.display_name}/api/setflairenabled`,
 			form: { api_type, flair_enabled },
@@ -614,6 +685,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	public async setMultipleUserFlairs(
 		flairArray: Array<{
 			name: string;
@@ -673,6 +745,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		});
 		return this;
 	}
+
 	public async showMyFlair(): Promise<this> {
 		return this._setMyFlairVisibility(true);
 	}
@@ -683,30 +756,35 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			subredditName: this.display_name,
 		});
 	}
+
 	public async submitLink(options: SubmitLinkOptions): Promise<Submission> {
 		return this._r.submitLink({
 			...options,
 			subredditName: this.display_name,
 		});
 	}
+	
 	public async submitGallery(options) {
 		return this._r.submitVideo({
 			...options,
 			subredditName: this.display_name,
 		});
 	}
+
 	public async submitImage(options) {
 		return this._r.submitImage({
 			...options,
 			subredditName: this.display_name,
 		});
 	}
+
 	public async submitPoll(options) {
 		return this._r.submitPoll({
 			...options,
 			subredditName: this.display_name,
 		});
 	}
+
 	public async submitSelfpost(
 		options: SubmitSelfPostOptions
 	): Promise<Submission> {
@@ -715,21 +793,26 @@ export default class Subreddit extends RedditContent<Subreddit> {
 			subredditName: this.display_name,
 		});
 	}
+
 	public async submitVideo(options) {
 		return this._r.submitVideo({
 			...options,
 			subredditName: this.display_name,
 		});
 	}
+
 	public async subscribe(): Promise<this> {
 		return this._setSubscribed(true);
 	}
+
 	public async unbanUser(options: { name: string }): Promise<this> {
 		return this._unfriend({ name, type: "banned" });
 	}
+
 	public async unmuteUser(options: { name: string }): Promise<this> {
 		return this._unfriend({ name, type: "muted" });
 	}
+
 	public async unsubscribe(): Promise<this> {
 		/**
 		 * Reddit returns a 404 error if the user attempts to unsubscribe to a subreddit that they weren't subscribed to in the
@@ -741,7 +824,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		 */
 		try {
 			await this._setSubscribed(false);
-		} catch (e) {
+		} catch (e: any) {
 			if (e.response.status === 404) {
 				return await this.fetch();
 			}
@@ -749,10 +832,14 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		}
 		return this;
 	}
-	public async unwikibanUser({name}: { name: string }): Promise<this> {
+
+	public async unwikibanUser({ name }: { name: string }): Promise<this> {
 		return this._unfriend({ name, type: "wikibanned" });
 	}
-	public async updateStylesheet({css, reason}: {
+	public async updateStylesheet({
+		css,
+		reason,
+	}: {
 		css: string;
 		reason?: string;
 	}): Promise<this> {
@@ -763,13 +850,22 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
-	public async uploadBannerImage({file, imageType}: ImageUploadOptions): Promise<this> {
+	public async uploadBannerImage({
+		file,
+		imageType,
+	}: ImageUploadOptions): Promise<this> {
 		return this._uploadSrImg({ file, imageType, upload_type: "banner" });
 	}
-	public async uploadHeaderImage({file, imageType}: ImageUploadOptions): Promise<this> {
+	public async uploadHeaderImage({
+		file,
+		imageType,
+	}: ImageUploadOptions): Promise<this> {
 		return this._uploadSrImg({ file, imageType, uploadType: "header" });
 	}
-	public async uploadIcon({file, imageType}: ImageUploadOptions): Promise<this> {
+	public async uploadIcon({
+		file,
+		imageType,
+	}: ImageUploadOptions): Promise<this> {
 		return this._uploadSrImg({ file, imageType, uploadType: "icon" });
 	}
 	public async uploadStylesheetImage(
@@ -812,6 +908,7 @@ export default class Subreddit extends RedditContent<Subreddit> {
 		handleJsonErrors(res);
 		return this;
 	}
+
 	async _unfriend(options) {
 		const res = await this._post({
 			url: `r/${this.display_name}/api/unfriend`,
@@ -823,14 +920,14 @@ export default class Subreddit extends RedditContent<Subreddit> {
 }
 
 // this is per-flair
-interface FlairParams {
+export interface FlairParams {
 	text: string;
-	cssClass?: string;
-	textEditable?: boolean;
+	cssClass: string;
+	textEditable: boolean;
 }
 
 // this is for the entire subreddit
-interface FlairConfig {
+export interface FlairConfig {
 	userFlairEnabled: boolean;
 	userFlairPosition: "left" | "right";
 	userFlairSelfAssignEnabled: boolean;
@@ -846,22 +943,22 @@ export interface FlairTemplate {
 	flair_text: string;
 }
 
-interface UserFlair {
+export interface UserFlair {
 	flair_css_class: string;
 	user: string;
 	flair_text: string;
 }
 
-interface UserDetails {
+export interface UserDetails {
 	date: number;
 	name: string;
 	id: string;
 }
-type BannedUser = UserDetails & { note: string };
-type MutedUser = UserDetails;
-type Contributor = UserDetails;
+export type BannedUser = UserDetails & { note: string };
+export type MutedUser = UserDetails;
+export type Contributor = UserDetails;
 
-type SubredditType =
+export type SubredditType =
 	| "public"
 	| "private"
 	| "restricted"
@@ -869,9 +966,9 @@ type SubredditType =
 	| "gold_only"
 	| "archived"
 	| "employees_only";
-type LinkType = "any" | "link" | "self";
+export type LinkType = "any" | "link" | "self";
 
-type SpamLevel = "low" | "high" | "all";
+export type SpamLevel = "low" | "high" | "all";
 export interface SubredditSettings {
 	name: string;
 	title: string;
@@ -901,12 +998,12 @@ export interface SubredditSettings {
 	default_set?: boolean;
 }
 
-interface ImageUploadOptions {
+export interface ImageUploadOptions {
 	file: string | NodeJS.ReadableStream;
 	imageType?: string;
 }
 
-interface Rule {
+export interface Rule {
 	kind: string;
 	short_name: string;
 	description: string;
@@ -916,7 +1013,7 @@ interface Rule {
 	description_html: string;
 }
 
-type ModeratorPermission =
+export type ModeratorPermission =
 	| "wiki"
 	| "posts"
 	| "access"
@@ -924,7 +1021,7 @@ type ModeratorPermission =
 	| "config"
 	| "flair";
 
-interface BanOptions {
+export interface BanOptions {
 	name: string;
 	banMessage?: string;
 	banReason?: string;
@@ -932,7 +1029,7 @@ interface BanOptions {
 	banNote?: string;
 }
 
-type Timespan = "hour" | "day" | "week" | "month" | "year" | "all";
+export type Timespan = "hour" | "day" | "week" | "month" | "year" | "all";
 
 export type ModActionType =
 	| "banuser"

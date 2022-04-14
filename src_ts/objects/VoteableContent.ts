@@ -16,7 +16,7 @@ export interface RichTextFlair {
     t?: string;
 }
 
-interface Gildings {
+export interface Gildings {
     /** Number of Reddit Silver awarded */
     gid_1: number;
     /** Number of Reddit Gold awarded */
@@ -34,6 +34,8 @@ export type SubredditType =
   | 'private'
   | 'user'
   | 'public';
+
+
 
 
 export default interface VoteableContent<T extends VoteableContent<T>> extends ReplyableContent<T> {
@@ -83,6 +85,9 @@ export default interface VoteableContent<T extends VoteableContent<T>> extends R
     subreddit_type: SubredditType;
     ups: number;
     user_reports: string[];
+
+    comments: any;
+    replies: any;
 }
 
 @snoowrapFactoryConstructible
@@ -93,18 +98,18 @@ export default class VoteableContent<T extends VoteableContent<T>> extends Reply
         return this;
     }
 
-    public async _setInboxRepliesEnabled (state) {
+    public async _setInboxRepliesEnabled (state: boolean) {
         return this._post({url: 'api/sendreplies', form: {state, id: this.name}});
       }
 
-    public async _mutateAndExpandReplies ({limit, depth}) {
+    public async _mutateAndExpandReplies ({limit, depth} : {limit: number, depth: number}) {
         if (depth <= 0) {
           return this;
         }
         const repliesKey = this.constructor.name === 'Submission' ? 'comments' : 'replies';
         const replies = await this[repliesKey].fetchMore({amount: limit - this[repliesKey].length});
         this[repliesKey] = replies;
-        replies.slice(0, limit).map(reply => reply._mutateAndExpandReplies({limit, depth: depth - 1}));
+        replies.slice(0, limit).map((reply: any) => reply._mutateAndExpandReplies({limit, depth: depth - 1}));
         return this;
       }
     
@@ -118,7 +123,7 @@ export default class VoteableContent<T extends VoteableContent<T>> extends Reply
         return this;
       }
 
-    public async distinguish(options?: { status?: boolean | string; sticky?: boolean; }): Promise<this>{
+    public async distinguish(options: { status?: boolean | string; sticky?: boolean; } = {}): Promise<this>{
         await this._post({url: 'api/distinguish', form: {
           api_type,
           how: options.status === true ? 'yes' : options.status === false ? 'no' : options.status,
@@ -146,7 +151,7 @@ export default class VoteableContent<T extends VoteableContent<T>> extends Reply
         return this;
       }
 
-    public async expandReplies(options?: { limit?: number; depth?: number; }): Promise<this>{
+    public async expandReplies(options: { limit?: number; depth?: number; } = {}): Promise<this>{
         await this.fetch();
         return (<this>this._clone({deep: true}))._mutateAndExpandReplies({limit: options.limit?? Infinity, depth: options.depth?? Infinity});
           

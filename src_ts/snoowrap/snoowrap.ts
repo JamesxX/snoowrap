@@ -17,11 +17,14 @@ import SubmitLinkOptions from "../interfaces/SubmitLinkOptions";
 import {
 	api_type,
 	KINDS,
+	MIME_TYPES,
+	PLACEHOLDER_REGEX,
 	SUBREDDIT_KEYS,
 	USER_KEYS,
 } from "../utility/constants";
 import { isBrowser } from "../utility/polyfills";
 import { InvalidMethodCallError } from "../utility/errors";
+import { MediaFile, MediaImg, PrivateMessage, Submission, Subreddit } from "../objects";
 
 export default interface snoowrap extends factory {
 	_ownUserInfo: any; // RedditUser, update when class is created
@@ -233,11 +236,12 @@ export default class snoowrap extends factory {
 					  });
 			url = fileUrl;
 			websocketUrl = wsUrl;
-		} catch (err) {
+		} catch (err: any) {
 			throw new Error(
 				"An error has occurred with the video file: " + err.message
 			);
 		}
+		
 		try {
 			const { fileUrl } =
 				thumbnailFile instanceof MediaImg
@@ -248,7 +252,7 @@ export default class snoowrap extends factory {
 							type: "img",
 					  });
 			videoPosterUrl = fileUrl;
-		} catch (err) {
+		} catch (err: any) {
 			throw new Error(
 				"An error occurred with the thumbnail file: " + err.message
 			);
@@ -326,18 +330,22 @@ export default class snoowrap extends factory {
 		return this.#submit({ ...options, kind: "gallery", gallery });
 	}
 
-	async submitSelfpost({ text, inlineMedia, rtjson, ...options }) {
+	async submitSelfpost({ text, inlineMedia, rtjson, ...options } : {
+		text?: string,
+		inlineMedia: any,
+		rtjson?: string,
+	}) {
 		/* eslint-disable require-atomic-updates */
 		if (rtjson) {
-			text = null;
+			text = undefined;
 		}
-		if (text && inlineMedia) {
+		if (text != undefined && inlineMedia) {
 			const placeholders = Object.keys(inlineMedia);
 
 			// Validate inline media
 			await Promise.all(
 				placeholders.map(async (p) => {
-					if (!text.includes(`{${p}}`)) {
+					if (!text!.includes(`{${p}}`)) {
 						return;
 					}
 					if (!(inlineMedia[p] instanceof MediaFile)) {
@@ -352,7 +360,7 @@ export default class snoowrap extends factory {
 			// Upload if necessary
 			await Promise.all(
 				placeholders.map(async (p) => {
-					if (!text.includes(`{${p}}`)) {
+					if (!text!.includes(`{${p}}`)) {
 						return;
 					}
 					if (!(inlineMedia[p] instanceof MediaFile)) {
@@ -368,17 +376,17 @@ export default class snoowrap extends factory {
 				(_m, g1) => inlineMedia[g1]
 			);
 			rtjson = await this.convertToFancypants(body);
-			text = null;
+			text = undefined;
 		}
 		return this.#submit({ ...options, kind: "self", text, rtjson });
 		/* eslint-enable require-atomic-updates */
 	}
 
-	submitPoll(options) {
+	submitPoll(options: any) {
 		return this.#submit({ ...options, kind: "poll" });
 	}
 
-	submitCrosspost({ originalPost, ...options }) {
+	submitCrosspost({ originalPost, ...options } : {originalPost: any}) {
 		return this.#submit({
 			...options,
 			kind: "crosspost",
@@ -432,7 +440,7 @@ export default class snoowrap extends factory {
 			expectedMimePrefix &&
 			mimetype.split("/")[0] !== expectedMimePrefix
 		) {
-			throw new errors.InvalidMethodCallError(
+			throw new InvalidMethodCallError(
 				`Expected a mimetype for the file '${fileName}' starting with '${expectedMimePrefix}' but got '${mimetype}'`
 			);
 		}

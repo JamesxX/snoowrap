@@ -6,7 +6,7 @@ import Listing, { ListingOptions } from "./Listing";
 import { FlairTemplate } from "./Subreddit";
 import VoteableContent, { RichTextFlair } from "./VoteableContent";
 
-interface Media {
+export interface Media {
 	oembed?: {
 		/** The username of the uploader of the source media */
 		author_name?: string;
@@ -41,7 +41,7 @@ interface Media {
 	type?: string;
 }
 
-interface MediaEmbed {
+export interface MediaEmbed {
 	/** HTML string of the media, usually an iframe */
 	content?: string;
 	height?: number;
@@ -49,7 +49,7 @@ interface MediaEmbed {
 	width?: number;
 }
 
-interface SecureMediaEmbed extends MediaEmbed {
+export interface SecureMediaEmbed extends MediaEmbed {
 	media_domain_url?: string;
 }
 
@@ -320,13 +320,13 @@ export default class Submission extends VoteableContent<Submission> {
 	}
 }
 
-interface ImagePreviewSource {
+export interface ImagePreviewSource {
 	url: string;
 	width: number;
 	height: number;
 }
 
-interface ImagePreview {
+export interface ImagePreview {
 	source: ImagePreviewSource;
 	resolutions: ImagePreviewSource[];
 	variants: any; // ?

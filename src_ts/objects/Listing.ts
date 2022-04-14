@@ -1,19 +1,27 @@
-import * as Snoowrap from "../snoowrap";
+import { clone, defaults, defaultsDeep, pick } from "lodash";
+import snoowrap from "../snoowrap/snoowrap";
+import { InvalidMethodCallError } from "../utility/errors";
+import More from "./More";
 
 export default interface Listing<T> extends Array<T> {
 	isFinished: boolean;
 	is_finished: boolean;
+	_more: any
+	_query: any
+	_r: snoowrap
 }
 
 export default class Listing<T> extends Array<T> {
-	constructor(options: any, _r: Snoowrap) {
+	constructor(options: any, _r: snoowrap) {
 		super();
-		if (!(this instanceof Listing)) {
+
+		/*if (!(this instanceof Listing)) {
 			// Safari 9 has an incorrect implementation of classes that extend Arrays. As a workaround,
 			// manually set the constructor and prototype.
 			this.constructor = Listing;
 			Object.setPrototypeOf(this, Listing.prototype);
-		}
+		}*/
+
 		this.push(...(options.children || []));
 		this._r = _r;
 		this._cachedLookahead = options._cachedLookahead;
@@ -81,7 +89,7 @@ export interface SortedListingOptions extends ListingOptions {
 	time?: "all" | "hour" | "day" | "week" | "month" | "year";
 }
 
-interface FetchMoreOptions {
+export interface FetchMoreOptions {
 	amount: number;
 	skipReplies?: boolean;
 	skip_replies?: boolean;

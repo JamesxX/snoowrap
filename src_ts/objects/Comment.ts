@@ -24,8 +24,6 @@ export default interface Comment extends VoteableContent<Comment> {
 @snoowrapFactoryConstructible
 export default class Comment extends VoteableContent<Comment> {
 
-    _children = {}
-
     constructor (options, _r, _hasFetched) {
         super(options, _r, _hasFetched);
         if (_hasFetched) {
@@ -48,7 +46,7 @@ export default class Comment extends VoteableContent<Comment> {
         }
     }
 
-    public _transformApiResponse (response) {
+    public _transformApiResponse (response: any) {
         if (response instanceof Submission) {
             const children = response._children;
             response = response.comments[0];
@@ -71,11 +69,11 @@ export default class Comment extends VoteableContent<Comment> {
           : `comments/${this.link_id.slice(3)}?comment=${this.name.slice(3)}${this._sort ? `&sort=${this._sort}` : ''}`;
     }
 
-    public async fetchMore (options) {
+    public async fetchMore (options: any) {
         if (typeof options !== 'number') {
             options.append = true;
         }
-        const comments = await this.replies.fetchMore(options);
+        const comments : any = await this.replies.fetchMore(options);
         if (this._cb) {
             this._cb({_children: comments._children});
         }
@@ -83,7 +81,7 @@ export default class Comment extends VoteableContent<Comment> {
         return comments;
     }
 
-    public async fetchAll (options) {
+    public async fetchAll (options: any) {
         return this.fetchMore({...options, amount: Infinity});
     }
 

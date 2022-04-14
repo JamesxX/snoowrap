@@ -186,7 +186,7 @@ export default class RedditUser extends RedditContent<RedditUser> {
 
 }
 
-interface Features {
+export interface Features {
   chat: boolean;
   chat_group_rollout: boolean;
   chat_rollout: boolean;
@@ -259,7 +259,7 @@ interface Features {
   geopopular_in: ExperimentFeature;
 }
 
-interface ExperimentFeature {
+export interface ExperimentFeature {
   owner: string;
   variant: string;
   experiment_id: number;

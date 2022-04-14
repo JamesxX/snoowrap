@@ -3,8 +3,15 @@ import { api_type } from '../utility/constants';
 import { handleJsonErrors } from '../utility/helpers';
 import RedditContent from './RedditContent';
 
+export default interface ReplyableContent<T extends ReplyableContent<T>> extends RedditContent<T> {
+    _children: any
+    _sort: any
+    _cb: any
+}
+
 @snoowrapFactoryConstructible
 export default class ReplyableContent<T extends ReplyableContent<T>> extends RedditContent<T> {
+
     public async approve(): Promise<this>{
         await this._post({url: 'api/approve', form: {id: this.name}});
         return this;

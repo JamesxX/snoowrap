@@ -120,9 +120,9 @@ export interface MultiRedditProperties {
 	weighting_scheme?: MultiRedditWeightingSchema;
 }
 
-type MultiRedditWeightingSchema = "classic" | "fresh";
-type MultiRedditVisibility = "private" | "public" | "hidden";
-type MultiRedditIcon =
+export type MultiRedditWeightingSchema = "classic" | "fresh";
+export type MultiRedditVisibility = "private" | "public" | "hidden";
+export type MultiRedditIcon =
 	| "art and design"
 	| "ask"
 	| "books"
