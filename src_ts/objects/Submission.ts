@@ -1,4 +1,6 @@
 import { Sort } from "../snoowrap";
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
+import snoowrap from "../snoowrap/snoowrap";
 import { api_type } from "../utility/constants";
 import { addFullnamePrefix } from "../utility/helpers";
 import Comment from "./Comment";
@@ -112,8 +114,9 @@ export default interface Submission extends VoteableContent<Submission> {
 	wls: number;
 }
 
+@snoowrapFactoryConstructible
 export default class Submission extends VoteableContent<Submission> {
-	constructor(data, _r, _hasFetched) {
+	constructor(data: any, _r: snoowrap, _hasFetched: boolean) {
 		super(data, _r, _hasFetched);
 		this._callback = this._callback.bind(this);
 		this._sort = this._sort || null;
@@ -162,7 +165,7 @@ export default class Submission extends VoteableContent<Submission> {
 		}`;
 	}
 
-	public async _setContestModeEnabled(state) {
+	public async _setContestModeEnabled(state: boolean) {
 		await this._post({
 			url: "api/set_contest_mode",
 			form: { api_type, state, id: this.name },
@@ -170,7 +173,13 @@ export default class Submission extends VoteableContent<Submission> {
 		return this;
 	}
 
-	public async _setStickied({ state, num }) {
+	public async _setStickied({
+		state,
+		num,
+	}: {
+		state?: boolean;
+		num?: number;
+	}) {
 		await this._post({
 			url: "api/set_subreddit_sticky",
 			form: { api_type, state, num, id: this.name },
@@ -194,13 +203,16 @@ export default class Submission extends VoteableContent<Submission> {
 	public async disableContestMode(): Promise<this> {
 		return this._setContestModeEnabled(false);
 	}
+
 	public async enableContestMode(): Promise<this> {
 		return this._setContestModeEnabled(true);
 	}
-	public async fetchAll(options) {
+
+	public async fetchAll(options: any) {
 		return this.fetchMore({ ...options, amount: Infinity });
 	}
-	public async fetchMore(options) {
+
+	public async fetchMore(options: any) {
 		if (typeof options !== "number") {
 			options.append = true;
 		}
@@ -209,7 +221,11 @@ export default class Submission extends VoteableContent<Submission> {
 		this.comments = comments;
 		return comments;
 	}
-	public async getComment(commentId, fetch): Promise<Comment> {
+
+	public async getComment(
+		commentId: string,
+		fetch: boolean = false
+	): Promise<Comment> {
 		let comment = this._children[commentId] || null;
 		if (fetch) {
 			comment = this._r.newObject("Comment", {
@@ -221,6 +237,7 @@ export default class Submission extends VoteableContent<Submission> {
 		}
 		return comment;
 	}
+
 	public async getDuplicates(
 		options?: ListingOptions
 	): Promise<Listing<Submission>> {
@@ -229,10 +246,12 @@ export default class Submission extends VoteableContent<Submission> {
 			qs: options,
 		});
 	}
+
 	public async getLinkFlairTemplates(): Promise<FlairTemplate[]> {
 		await this.fetch();
 		return this.subreddit.getLinkFlairTemplates(this.name);
 	}
+
 	/* @deprecated */
 	public async getRelated(options?: ListingOptions): Promise<Submission> {
 		const result = await this._getListing({
@@ -246,14 +265,17 @@ export default class Submission extends VoteableContent<Submission> {
 		}
 		return result;
 	}
+
 	public async hide(): Promise<this> {
 		await this._post({ url: "api/hide", form: { id: this.name } });
 		return this;
 	}
+
 	public async lock(): Promise<this> {
 		await this._post({ url: "api/lock", form: { id: this.name } });
 		return this;
 	}
+
 	public async markAsRead(): Promise<this> {
 		await this._post({
 			url: "api/store_visits",
@@ -261,14 +283,17 @@ export default class Submission extends VoteableContent<Submission> {
 		});
 		return this;
 	}
+
 	public async markNsfw(): Promise<this> {
 		await this._post({ url: "api/marknsfw", form: { id: this.name } });
 		return this;
 	}
+
 	public async markSpoiler(): Promise<this> {
 		await this._post({ url: "api/spoiler", form: { id: this.name } });
 		return this;
 	}
+
 	public async selectFlair(options: {
 		flair_template_id: string;
 		text?: string;
@@ -290,33 +315,39 @@ export default class Submission extends VoteableContent<Submission> {
 		return this;
 	}
 
-	public async sticky(options?: { num?: number }): Promise<this> {
+	public async sticky({ num }: { num?: number }): Promise<this> {
 		await this._setStickied({ state: true, num });
 		return this;
 	}
+
 	public async unhide(): Promise<this> {
 		await this._post({ url: "api/unhide", form: { id: this.name } });
 		return this;
 	}
+
 	public async unlock(): Promise<this> {
 		await this._post({ url: "api/unlock", form: { id: this.name } });
 		return this;
 	}
+
 	public async unmarkNsfw(): Promise<this> {
 		await this._post({ url: "api/unmarknsfw", form: { id: this.name } });
 		return this;
 	}
+
 	public async unmarkSpoiler(): Promise<this> {
 		await this._post({ url: "api/unspoiler", form: { id: this.name } });
 		return this;
 	}
+
 	public async unsticky(): Promise<this> {
 		await this._setStickied({ state: false });
 		return this;
 	}
 
-	public async submitCrosspost(): Promise<this> {
-		return this._r.submitCrosspost({ ...options, originalPost: this });
+	public async submitCrosspost(options: any): Promise<this> {
+		await this._r.submitCrosspost({ ...options, originalPost: this });
+		return this;
 	}
 }
 

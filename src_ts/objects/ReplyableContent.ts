@@ -27,7 +27,7 @@ export default class ReplyableContent<T extends ReplyableContent<T>> extends Red
         return this;
     }
 
-    public async remove(options?: { spam?: boolean }): Promise<this> {
+    public async remove(options: { spam?: boolean } = {spam: false} ): Promise<this> {
         await this._post({url: 'api/remove', form: {spam: options.spam, id: this.name}});
         return this;
     }
@@ -41,7 +41,7 @@ export default class ReplyableContent<T extends ReplyableContent<T>> extends Red
         return res.json.data.things[0];
     }
 
-    public async report(options?: { reason?: string }): Promise<this> {
+    public async report(options: { reason?: string } = {}): Promise<this> {
         await this._post({url: 'api/report', form: {
           api_type, reason: 'other', other_reason: options.reason, thing_id: this.name
         }});

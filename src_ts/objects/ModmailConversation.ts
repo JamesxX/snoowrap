@@ -2,6 +2,7 @@ import Subreddit from "./Subreddit";
 import RedditContent from "./RedditContent";
 import RedditUser from "./RedditUser";
 import ModmailConversationAuthor from "./ModmailConversationAuthor";
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
 
 export enum conversationStates {
 	New = 0,
@@ -70,17 +71,18 @@ export default interface ModmailConversation
 	lastUnread?: any;
 	numMessages: number;
 	messages?: ModmailMessage[];
+
+	conversationStates: conversationStates;
+	modActionStates: modActionStates;
 }
 
+@snoowrapFactoryConstructible
 export default class ModmailConversation extends RedditContent<ModmailConversation> {
-	conversationStates = conversationStates;
-	modActionStates = modActionStates;
-
 	get _uri() {
 		return `api/mod/conversations/${this.id}?markRead=false`;
 	}
 
-	_transformApiResponse(response) {
+	_transformApiResponse(response: any) {
 		response.conversation.owner = this._r.newObject("Subreddit", {
 			id: response.conversation.owner.id,
 			display_name: response.conversation.owner.displayName,
@@ -112,8 +114,8 @@ export default class ModmailConversation extends RedditContent<ModmailConversati
 		);
 	}
 
-	static _getConversationObjects(conversation, response) {
-		const conversationObjects = {};
+	static _getConversationObjects(conversation: any, response: any) {
+		const conversationObjects: any = {};
 		for (const objId of conversation.objIds) {
 			if (!conversationObjects[objId.key]) {
 				conversationObjects[objId.key] = [];

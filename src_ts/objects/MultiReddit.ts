@@ -1,6 +1,8 @@
 import RedditUser from "./RedditUser";
 import RedditContent from "./RedditContent";
 import Subreddit from "./Subreddit";
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
+import snoowrap from "../snoowrap/snoowrap";
 
 export default interface MultiReddit extends RedditContent<MultiReddit> {
 	can_edit: boolean;
@@ -18,8 +20,9 @@ export default interface MultiReddit extends RedditContent<MultiReddit> {
 	weighting_schema: MultiRedditWeightingSchema;
 }
 
+@snoowrapFactoryConstructible
 export default class MultiReddit extends RedditContent<MultiReddit> {
-	constructor(options, _r, _hasFetched) {
+	constructor(options: any, _r: snoowrap, _hasFetched: boolean) {
 		super(options, _r, _hasFetched);
 		if (_hasFetched) {
 			this.curator = _r.getUser(this.path.split("/")[2]);
@@ -31,9 +34,11 @@ export default class MultiReddit extends RedditContent<MultiReddit> {
 			);
 		}
 	}
+
 	get _uri() {
 		return `api/multi${this._path}?expand_srs=true`;
 	}
+
 	get _path() {
 		return `/user/${this.curator.name}/m/${this.name}`;
 	}

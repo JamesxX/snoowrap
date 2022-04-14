@@ -9,6 +9,7 @@ import {
 	MAX_API_MORECHILDREN_AMOUNT,
 } from "../utility/constants";
 import snoowrap from "../snoowrap/snoowrap";
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
 
 const api_type = "json";
 
@@ -29,15 +30,15 @@ const api_type = "json";
  */
 
 export default interface More {
-    _r?: snoowrap,
-    children?: any[],
-    link_id?: any,
-    parent_id?: any
+	_r?: snoowrap;
+	children?: any[];
+	link_id?: any;
+	parent_id?: any;
 }
 
+@snoowrapFactoryConstructible
 export default class More {
-
-    public _r?: snoowrap
+	public _r?: snoowrap;
 
 	constructor(options: any, _r?: snoowrap) {
 		Object.assign(this, options);
@@ -84,6 +85,7 @@ export default class More {
 		}
 		return res;
 	}
+
 	async fetchTree(options, startIndex, children = {}, nested) {
 		if (options.amount <= 0 || startIndex >= this.children.length) {
 			return [];
@@ -94,7 +96,7 @@ export default class More {
 			options.amount,
 			MAX_API_MORECHILDREN_AMOUNT
 		);
-		const res = await this._r._get({
+		const res = await this._r!._get({
 			url: "api/morechildren",
 			params: {
 				api_type,
@@ -134,10 +136,11 @@ export default class More {
 		}
 		return resultTrees;
 	}
+
 	_clone() {
 		return new More(pick(this, Object.getOwnPropertyNames(this)), this._r);
 	}
-};
+}
 
 function getNextIdSlice(children, startIndex, desiredAmount, limit) {
 	return children.slice(

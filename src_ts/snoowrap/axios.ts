@@ -3,6 +3,7 @@ import {stringify as createQueryString} from 'querystring'
 import { isBrowser } from '../utility/polyfills'
 import snoowrap from './snoowrap';
 
+// @ts-ignore
 const FormData = isBrowser ? global.FormData : require('form-data');
 
 declare module 'axios' {
@@ -20,8 +21,8 @@ declare module 'axios' {
   }
 
 axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
-    const isSpreadable = val => typeof val !== 'string' && !(val instanceof Array);
-    const has = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+    const isSpreadable = (val: any) => typeof val !== 'string' && !(val instanceof Array);
+    const has = (obj: any, prop: any) => Object.prototype.hasOwnProperty.call(obj, prop);
   
 
     config.headers = isSpreadable(config.headers) ? {...config.headers} : {};
@@ -30,7 +31,7 @@ axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
     config.formData = isSpreadable(config.formData) ? {...config.formData} : {};
     config.form = isSpreadable(config.form) ? {...config.form} : {};
   
-    const requestHeaders = {};
+    const requestHeaders: any = {};
     Object.keys(config.headers).forEach(key => {
         const newKey = key.toLowerCase();
         if (!isBrowser || newKey !== 'user-agent') {
@@ -40,13 +41,13 @@ axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
 
     config.headers = requestHeaders;
   
-    let requestBody;
+    let requestBody: any;
     if (Object.keys(config.formData).length) {
         requestBody = new FormData();
-        Object.keys(config.formData).forEach(key => requestBody.append(key, config.formData[key]));
+        Object.keys(config.formData).forEach(key => requestBody.append(key, config.formData![key]));
         if (!isBrowser) {
             const contentLength = await new Promise((resolve, reject) => {
-                requestBody.getLength((err, length) => {
+                requestBody.getLength((err: any, length: number) => {
                     if (err) { reject(err); }
                     resolve(length);
                 });
@@ -64,9 +65,16 @@ axios.interceptors.request.use(async (config: AxiosRequestConfig) => {
   
     if (config.auth) {
         if (has(config.auth, 'bearer')) {
+
+            // @ts-expect-error
             config.headers.authorization = `Bearer ${config.auth.bearer}`;
+
         } else if (has(config.auth, 'user') && has(config.auth, 'pass')) {
+
+            // @ts-expect-error
             config.auth.username = config.auth.user;
+
+            // @ts-expect-error
             config.auth.password = config.auth.pass;
         }
     }

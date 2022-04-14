@@ -16,7 +16,7 @@ export default class RedditContent<T extends RedditContent<T>>{
     protected _fetch?: T;
 
     constructor(options: any, protected _r: snoowrap, protected _hasFetched: boolean){
-        this._fetch = null;
+        this._fetch = undefined;
         this._hasFetched = !!_hasFetched;
     }
 
@@ -26,11 +26,11 @@ export default class RedditContent<T extends RedditContent<T>>{
             res = this._transformApiResponse(res);
             this._fetch = res;
         }
-        return this._fetch;
+        return this._fetch!;
     }
 
     public refresh(): Promise<T>{
-        this._fetch = null;
+        this._fetch = undefined;
         return this.fetch();
     }
 
@@ -52,7 +52,7 @@ export default class RedditContent<T extends RedditContent<T>>{
         return pick(this, Object.keys(this).filter(key => !key.startsWith('_')));
     }
 
-    protected _transformApiResponse (response) {
+    protected _transformApiResponse (response: any) {
         return response;
     }
 
@@ -66,7 +66,7 @@ export default class RedditContent<T extends RedditContent<T>>{
         return this._r.newObject(this.constructor.name, clonedProps, this._hasFetched);
     }
 
-    public _getListing (...args) {
+    public _getListing (...args: any) {
         return this._r._getListing(...args);
     }
 

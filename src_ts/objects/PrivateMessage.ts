@@ -1,3 +1,4 @@
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
 import Listing from "./Listing";
 import RedditUser from "./RedditUser";
 import ReplyableContent from "./ReplyableContent";
@@ -25,12 +26,13 @@ export default interface PrivateMessage
 	was_comment: boolean;
 }
 
+@snoowrapFactoryConstructible
 export default class PrivateMessage extends ReplyableContent<PrivateMessage> {
 	get _uri() {
 		return `message/messages/${this.name.slice(3)}`;
 	}
 
-	public async _transformApiResponse(response) {
+	public async _transformApiResponse(response: any) {
 		response[0].replies = buildRepliesTree(response[0].replies || []);
 		return findMessageInTree(this.name, response[0]);
 	}

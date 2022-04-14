@@ -1,4 +1,5 @@
 import { clone, defaults, defaultsDeep, pick } from "lodash";
+import { snoowrapFactoryConstructible } from "../snoowrap/factory";
 import snoowrap from "../snoowrap/snoowrap";
 import { InvalidMethodCallError } from "../utility/errors";
 import More from "./More";
@@ -6,11 +7,12 @@ import More from "./More";
 export default interface Listing<T> extends Array<T> {
 	isFinished: boolean;
 	is_finished: boolean;
-	_more: any
-	_query: any
-	_r: snoowrap
+	_more: any;
+	_query: any;
+	_r: snoowrap;
 }
 
+@snoowrapFactoryConstructible
 export default class Listing<T> extends Array<T> {
 	constructor(options: any, _r: snoowrap) {
 		super();
